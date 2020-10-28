@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/mvc
+        https://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/security
+        http://www.springframework.org/schema/security/spring-security.xsd">
+
+    <context:component-scan base-package="com.king.controller"/>
+
+    <!-- 需要在spring-mvc中配置-->
+    <!-- 开启注解支持，Spring Security在方法的权限控制上支持三种类型的注解，JSR-250注解、@Secured注解和支持表达式的注解-->
+    <security:global-method-security jsr250-annotations="enabled" pre-post-annotations="enabled" secured-annotations="enabled"/>
+
+
+    <mvc:annotation-driven/>
+
+    <bean id="internalResourceViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/pages/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <!-- 设置静态资源不过滤 -->
+<!--    <mvc:resources location="/css/" mapping="/css/**" />-->
+<!--    <mvc:resources location="/img/" mapping="/img/**" />-->
+<!--    <mvc:resources location="/plugins/" mapping="/plugins/**" />-->
+    <mvc:default-servlet-handler/>
+
+    <aop:config>
+        <aop:pointcut id="pt_log" expression="execution(* com.king.controller.*Controller.*(..))"/>
+        <!--配置切面-->
+        <aop:aspect id="log" ref="logAop">
+            <!--前置通知：在切入点方法执行之前-->
+            <aop:before method="doBefore" pointcut-ref="pt_log"/>
+
+            <!--最终通知：无论切入方法是否正常都会在最后执行-->
+            <aop:after method="doAfter" pointcut-ref="pt_log"/>
+        </aop:aspect>
+    </aop:config>
+
+</beans>
